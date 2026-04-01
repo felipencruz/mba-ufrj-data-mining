@@ -63,3 +63,41 @@ caminho_grafico2 = os.path.join(PASTA_IMAGENS, "02_faturamento_canal.png")
 plt.savefig(caminho_grafico2)
 plt.close()
 print(f"  └─ Gráfico de Canais salvo em: {PASTA_IMAGENS}")
+
+#### CLUSTERIZAÇÃO ####
+
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+
+print("\n" + "=" * 70)
+print("  PASSO 3: MODELAGEM - CLUSTERIZAÇÃO DE CLIENTES (K-MEANS)")
+print("=" * 70)
+
+#### Preparando os dados ####
+#### Calculando total gasto e quantidade de pedidos por cliente ####
+df_rfm = df_vendas.groupby('cliente_id').agg({
+    'valor_total': 'sum',
+    'venda_id': 'count'
+}).rename(columns={'valor_total': 'TotalGasto', 'venda_id': 'Frequencia'})
+
+#### Normalização dos dados ####
+scaler = MinMaxScaler()
+df_scaled = scaler.fit_transform(df_rfm)
+
+#### Aplicando o K-Means para criar 4 grupos de clientes ####
+kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+df_rfm['Cluster'] = kmeans.fit_predict(df_scaled)
+
+print(f"  ├─ Clientes segmentados em {df_rfm['Cluster'].nunique()} grupos.")
+
+#### Visualizando os Clusters ####
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df_rfm, x='TotalGasto', y='Frequencia', hue='Cluster', palette='Set1')
+plt.title('Segmentação de Clientes - Moda Fitness BR')
+plt.xlabel('Volume Total de Compras (R$)')
+plt.ylabel('Frequência (Quantidade de Pedidos)')
+
+#### Salvando o gráfico de clusters ####
+plt.savefig(os.path.join(PASTA_IMAGENS, "03_clusters_clientes.png"))
+plt.close()
+print(f"  └─ Gráfico de Clusters salvo em: {PASTA_IMAGENS}")
