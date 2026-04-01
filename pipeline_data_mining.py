@@ -101,3 +101,32 @@ plt.ylabel('Frequência (Quantidade de Pedidos)')
 plt.savefig(os.path.join(PASTA_IMAGENS, "03_clusters_clientes.png"))
 plt.close()
 print(f"  └─ Gráfico de Clusters salvo em: {PASTA_IMAGENS}")
+
+#### RELATÓRIO FINAL ####
+
+print("\n" + "=" * 70)
+print("  PASSO 4: AVALIAÇÃO DOS RESULTADOS (EVALUATION - CRISP-DM)")
+print("=" * 70)
+
+#### Criando a tabela de perfil de cada cluster ####
+perfil_clusters = df_rfm.groupby('Cluster').agg({
+    'TotalGasto': ['mean', 'min', 'max'],
+    'Frequencia': ['mean', 'count']
+}).round(2)
+
+#### Renomeando colunas para ficar profissional ####
+perfil_clusters.columns = [
+    'Gasto Médio (R$)', 'Gasto Mín (R$)', 'Gasto Máx (R$)', 
+    'Freq. Média (Pedidos)', 'Qtd de Clientes'
+]
+
+print("\n--- PERFIL DOS SEGMENTOS DE CLIENTES ---")
+print(perfil_clusters)
+
+#### Exportando a tabela para CSV ####
+perfil_clusters.to_csv(os.path.join(PASTA_DADOS, "perfil_clusters.csv"), sep=';')
+
+print(f"\n✅ Tabela de perfil salva em: {PASTA_DADOS}")
+print("=" * 70)
+print("  PROJETO FINALIZADO COM SUCESSO!")
+print("=" * 70)
